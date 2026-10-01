@@ -9,8 +9,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils import assert_between_zero_inf, process_csv, import_pyModule, build_trajectory_df
 
 import_pyModule()
-from pywib import (ColumnNames, extract_traces_by_session, auc, x_flips, y_flips, deviations, 
-straigthness, visualize_trace, angle, angular_velocity, angular_acceleration)
+from pywib import (ColumnNames, extract_traces_by_session, auc, x_flips, y_flips, deviations, angle, 
+                   angular_velocity, angular_acceleration, path, total_distance, visualize_trace)
 
 # Cambiar a True solo al probar en desarrollo
 DEBUG = True
@@ -29,6 +29,12 @@ class TestData:
         dataFile_3= 'pywib/test/test_data/pauses.csv'
         dataFile_4= 'pywib/test/test_data/test_trajectory_single.csv'
         dataFile_5 = 'pywib/test/test_data/test_trajectory.csv'
+
+    totalDistance = 1800
+    totalDistance_SESSIONA = 1800
+    totalDistance_SESSIONB = 1800
+    totalDistance_SESSIONA_trace = 1400
+    totalDistance_SESSIONB_trace = 1600
 
 
 class TestTrajectory(unittest.TestCase):
@@ -240,6 +246,72 @@ class TestTrajectory(unittest.TestCase):
                         trace[ColumnNames.ANGULAR_ACCELERATION],
                         expected,
                     )
+
+    def _compute_point_diff(self, actual, previous):
+        dx = actual[0] - previous[0]
+        dy = actual[1] - previous[1]
+        return math.sqrt(dx ** 2 + dy ** 2)
+
+    def test_path(self):
+        path_values = path(self.test_data, per_traces=False)
+        previous_point = None
+
+        for _, entry in path_values.iterrows():
+            actual_point = (entry[ColumnNames.X], entry[ColumnNames.Y])
+
+            if previous_point is not None:
+                self.assertAlmostEqual(
+                    entry[ColumnNames.DISTANCE],
+                    self._compute_point_diff(actual_point, previous_point),
+                )
+            else:
+                self.assertAlmostEqual(entry[ColumnNames.DISTANCE], 0)
+
+            previous_point = actual_point
+        
+    def test_path_perTraces(self):
+        path_values = path(self.test_data, per_traces=True)
+
+        for _, traces in path_values.items():
+            for trace in traces:
+                previous_point = None
+
+                for _, entry in trace.iterrows():
+                    actual_point = (
+                        entry[ColumnNames.X],
+                        entry[ColumnNames.Y],
+                    )
+
+                    if previous_point is not None:
+                        self.assertAlmostEqual(
+                            entry[ColumnNames.DISTANCE],
+                            self._compute_point_diff(actual_point, previous_point),
+                        )
+                    else:
+                        self.assertAlmostEqual(entry[ColumnNames.DISTANCE], 0)
+
+                    previous_point = actual_point
+        
+    def test_total_distance(self):
+        total = total_distance(self.test_data, per_traces= False, per_user=False)
+        self.assertAlmostEqual(total, TestData.totalDistance)
+
+        
+    def test_total_distance_perTraces(self):
+        total = total_distance(self.test_data, per_traces= True, per_user=False)
+        for session, value in total.items():
+            if session == "SESSION_A":
+                self.assertAlmostEqual(value, TestData.totalDistance_SESSIONA_trace)
+            else:
+                self.assertAlmostEqual(value, TestData.totalDistance_SESSIONB_trace)
+
+    def test_total_distance_perUser(self):
+        total = total_distance(self.test_data, per_traces=False, per_user=True)
+        for session, value in total.items():
+            if session == "SESSION_A":
+                self.assertAlmostEqual(value, TestData.totalDistance_SESSIONA)
+            else:
+                self.assertAlmostEqual(value, TestData.totalDistance_SESSIONB)
 
 if __name__ == '__main__':
     unittest.main()

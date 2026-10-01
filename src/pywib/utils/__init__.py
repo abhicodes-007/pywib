@@ -2,7 +2,7 @@
 Utility functions for PyWib
 """
 
-from .validation import validate_dataframe, validate_dataframe_keyboard, validate_duplicate_timestamps
+from .validation import validate_dataframe, validate_dataframe_keyboard, validate_duplicate_timestamps, validate_traces
 from .segmentation import extract_traces_by_session, extract_mouse_click_traces_by_session, extract_mouse_click_traces_by_session_with_intial_pause
 from .visualization import visualize_trace, video_from_trace, keyboard_heatmap
 from .utils import compute_space_time_diff, compute_metrics_from_traces, to_pywib_df
@@ -29,6 +29,7 @@ __all__ = [
     'extract_mouse_click_traces_by_session_with_intial_pause',
     'video_from_trace',
     'validate_duplicate_timestamps',
+    'validate_traces',
     'keyboard_heatmap',
     'angular_velocity_df',
     'angular_acceleration_df',

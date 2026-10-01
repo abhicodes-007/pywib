@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from pywib.constants import ColumnNames
+from pywib.constants import ColumnNames, EventTypes
 from pywib.utils import validate_dataframe, compute_space_time_diff
 from pywib.utils.utils import deprecated
 from joblib import Parallel, delayed
@@ -184,6 +184,10 @@ def _path(trace: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("Trace DataFrame must be provided.")
 
     validate_dataframe(trace)
+
+    # A path can only be defined by movement events. Events out of the screen must also be removed
+    trace = trace[(trace[ColumnNames.EVENT_TYPE] == EventTypes.EVENT_ON_MOUSE_MOVE) | (trace[ColumnNames.EVENT_TYPE] == EventTypes.EVENT_ON_MOUSE_MOVE)]
+    trace = trace[(trace[ColumnNames.X] > -1) & (trace[ColumnNames.Y] > -1) ]
 
     trace = compute_space_time_diff(trace)
     trace[ColumnNames.DISTANCE] = np.sqrt(trace[ColumnNames.DX] ** 2 + trace[ColumnNames.DY] ** 2)

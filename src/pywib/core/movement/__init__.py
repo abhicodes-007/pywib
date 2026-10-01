@@ -1,10 +1,11 @@
 """
 Core metrics functions from PyWib
 """
-from .movement import (velocity, acceleration, jerkiness, velocity_metrics, acceleration_metrics, jerkiness_metrics)
+from .movement import (velocity, acceleration, jerkiness, velocity_metrics, acceleration_metrics, 
+                       jerkiness_metrics)
 
 from .trajectory import (path, auc, deviations, angle, angular_velocity, angular_acceleration, direction_changes, curvature, x_flips, y_flips, 
-                         straigthness)
+                         straigthness, total_distance)
 
 __all__ = [
     # Movement metrics
@@ -16,6 +17,7 @@ __all__ = [
     "jerkiness_metrics",
     # Trajectory metrics
     "path",
+    "total_distance",
     "auc",
     "deviations",
     "angle",

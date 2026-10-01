@@ -15,7 +15,7 @@ from .core import (velocity, acceleration, jerkiness, path, auc,
                    click_slip, num_pauses, deviations,
                      typing_speed_metrics, typing_speed, backspace_usage, typing_durations,
                      angle, angular_velocity, angular_acceleration, direction_changes, curvature,
-                     x_flips, y_flips, straigthness)
+                     x_flips, y_flips, straigthness, total_distance)
 
 __all__ = [
     # Version info
@@ -56,6 +56,8 @@ __all__ = [
     "x_flips",
     "y_flips",
     "straigthness",
+    "total_distance",
+    
     # Mouse functions
     "number_of_clicks",
     "click_slip",

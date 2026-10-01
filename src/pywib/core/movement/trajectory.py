@@ -8,11 +8,11 @@ from pywib.constants import ColumnNames
 from pywib.utils.movement import (auc_df, auc_traces, flips, _apply_metric_to_traces,
                                    _compute_angles, angular_acceleration_df, angular_velocity_df)
 from pywib.utils.utils import deprecated
-from pywib.utils.validation import validate_any_not_none
+from pywib.utils.validation import validate_any_not_none, validate_traces
 
 def path(df: pd.DataFrame = None, traces: dict[str, list[pd.DataFrame]] = None, per_traces:bool = True) -> pd.DataFrame | dict[str, list[pd.DataFrame]]:
     """
-    Calculate the path length for the given DataFrame.
+    Calculate the path length of the sessions trajectory for the given DataFrame. The trajectory is only based on movement events.
     This function computes the path length based on the Euclidean distance between consecutive points.
 
     Parameters:
@@ -47,6 +47,38 @@ def path(df: pd.DataFrame = None, traces: dict[str, list[pd.DataFrame]] = None, 
 
     return traces
 
+def total_distance(df: pd.DataFrame = None, traces: dict[str, list[pd.DataFrame]] = None, per_user:bool = True, per_traces:bool = False) -> float | dict[str, float]:
+    """
+    TODO Comment
+    """
+    validate_any_not_none(df, traces)
+    
+    if not per_traces:
+        validate_dataframe(df)
+
+        if per_user:
+            session_distances = {}
+            for session in df[ColumnNames.SESSION_ID].unique():
+                dist = _path(df[df[ColumnNames.SESSION_ID] == session])[ColumnNames.DISTANCE].sum()
+                session_distances[session] = dist
+            return session_distances
+        return _path(df)[ColumnNames.DISTANCE].sum()
+
+    if traces is None:
+        validate_dataframe(df)
+        traces = extract_traces_by_session(df)
+    else:
+        validate_traces(traces)
+
+    session_distances = {}
+    for session_id, session_traces in traces.items():
+            # Compute the distance for each trace
+            total_session_distance = 0
+            for j in range(len(session_traces)):
+                total_session_distance += _path(session_traces[j])[ColumnNames.DISTANCE].sum()
+            session_distances[session_id] = total_session_distance
+
+    return session_distances
 
 def auc(df: pd.DataFrame, traces: dict[str, list[pd.DataFrame]] = None, per_traces: bool = True) -> tuple| dict:
     """
