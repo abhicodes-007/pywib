@@ -91,7 +91,13 @@ def pauses_metrics(df: pd.DataFrame, threshold: float = 100, traces: dict[str, l
         traces (dict): Dictionary with sessionId as keys and list of DataFrames as values.
 
     Returns:
-        dict: A dictionary with sessionId as keys and a dictionary of pause metrics as values.
+        dict[str, dict]: A dictionary with sessionId as keys and a dictionary of pause metrics as values. These metrics are:
+            - total_pauses: Total number of pauses
+            - mean_pause_duration: Mean duration of the pauses
+            - pause_duration (list[int]): An array of pauses durations
+            - mean_pauses_per_trace: The mean number of pauses per trace
+            - max_pause: The pause with maximum duration
+            - min_pause: The pause with minimum duration 
     """
 
     validate_any_not_none(df, traces)

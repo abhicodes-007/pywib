@@ -5,9 +5,9 @@ This section covers various trajectory metrics used to analyze the users traject
 
 .. currentmodule:: pywib
 
-Path
-----
-The path or total distance traveled during user interactions is a key metric for analyzing movement efficiency :cite:p:`Kieslich2019-mt,Katerina2018-ch,Rhim2023-uz,Seelye2015-yx`.
+Path and Total Distance
+-----------------------
+The path or total distance traveled during session interactions is a key metric for analyzing movement efficiency :cite:p:`Kieslich2019-mt,Katerina2018-ch,Rhim2023-uz,Seelye2015-yx`.
 
 The function :py:func:`~pywib.path` calculates the path length for interaction points from a DataFrame or session traces.
 This function computes the path length based on the Euclidean distance between consecutive points.
@@ -17,6 +17,26 @@ The distance between consecutive points is calculated as:
 .. math::
 
    d_i = \sqrt{(x_{i} - x_{i-1})^2 + (y_{i} - y_{i-1})^2}
+
+
+The total distance is the aggregation of all paths for the session, representing the total traversed trajectory of the user.
+The function :py:func:`~pywib.total_distance` calculates the total distance for either each session without traces, with traces or for the entire DataFrame.
+
+.. note::
+   Computing the path per traces and without traces does not render the same "global" result.
+   Consider a session with 5 events, if event number 3 is not a movement event (i.e: click, keyboard), then computing its total distance gives a smaller value when computing it by traces than by the whole DataFrame.
+   The following table illustrates a case in which a user performs a click event on timeStamp 300 and causes the total computed distance to be less than the expected total (400).
+
+
+==================  =========  ===  =   ===  ==  ===========  ========
+Trace               eventType  x    y   dx   dy  timeStamp    distance
+==================  =========  ===  =   ===  ==  ===========  ========
+Trace 1             0          0    0   0    0   100          0
+Trace 1             0          100  0   100  0   200          100
+**Trace boundary**  3          200  0   0    0   300          _
+Trace 2             0          300  0   100  0   200          100
+Trace 2             0          400  0   100  0   200          100
+==================  =========  ===  =   ===  ==  ===========  ========
 
 AUC
 ---

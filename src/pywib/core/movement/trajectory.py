@@ -12,7 +12,10 @@ from pywib.utils.validation import validate_any_not_none, validate_traces
 
 def path(df: pd.DataFrame = None, traces: dict[str, list[pd.DataFrame]] = None, per_traces:bool = True) -> pd.DataFrame | dict[str, list[pd.DataFrame]]:
     """
-    Calculate the path length of the sessions trajectory for the given DataFrame. The trajectory is only based on movement events.
+    Calculate the path length between the points of the sessions trajectories for the given DataFrame.
+    Returns them in a DataFrame or in a dictionary (if per traces) with a "distance" column.. 
+    
+    The trajectory is only based on movement events.
     This function computes the path length based on the Euclidean distance between consecutive points.
 
     Parameters:
@@ -49,7 +52,12 @@ def path(df: pd.DataFrame = None, traces: dict[str, list[pd.DataFrame]] = None, 
 
 def total_distance(df: pd.DataFrame = None, traces: dict[str, list[pd.DataFrame]] = None, per_user:bool = True, per_traces:bool = False) -> float | dict[str, float]:
     """
-    TODO Comment
+    Calculate the total distance of the sessions trajectory and return it as a float or as a dictonary of float values per session.
+    
+    This method can compute the total distance in three different ways:
+    - per_traces: If true, computes the path length of each trace and then adds all their values up. This renders a different result than a computation without traces. TODO
+    - per_user: Needs per_traces to be false. If set, the DataFrame is first segmented by session and then all movement points are taken into account for the path length.
+    - without traces: The entire DataFrame is filtered only by movement metrics to compute the length of all points.
     """
     validate_any_not_none(df, traces)
     

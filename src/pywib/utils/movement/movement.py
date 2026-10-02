@@ -185,11 +185,11 @@ def _path(trace: pd.DataFrame) -> pd.DataFrame:
 
     validate_dataframe(trace)
 
-    # A path can only be defined by movement events. Events out of the screen must also be removed
-    trace = trace[(trace[ColumnNames.EVENT_TYPE] == EventTypes.EVENT_ON_MOUSE_MOVE) | (trace[ColumnNames.EVENT_TYPE] == EventTypes.EVENT_ON_MOUSE_MOVE)]
-    trace = trace[(trace[ColumnNames.X] > -1) & (trace[ColumnNames.Y] > -1) ]
+    # Events out of the screen must also be removed.
+    trace = trace[(trace[ColumnNames.X] > -1) & (trace[ColumnNames.Y] > -1) ].copy()
 
     trace = compute_space_time_diff(trace)
+
     trace[ColumnNames.DISTANCE] = np.sqrt(trace[ColumnNames.DX] ** 2 + trace[ColumnNames.DY] ** 2)
 
     return trace

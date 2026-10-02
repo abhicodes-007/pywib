@@ -18,8 +18,8 @@ def compute_space_time_diff(df: pd.DataFrame) -> pd.DataFrame:
     validate_dataframe(df)
     
     df = df.copy()
-    df.sort_values(by=[ColumnNames.TIME_STAMP], inplace=True)
     df[ColumnNames.TIME_STAMP] = pd.to_numeric(df[ColumnNames.TIME_STAMP], errors='coerce')
+    df.sort_values(by=[ColumnNames.TIME_STAMP], inplace=True)
     df[ColumnNames.DT] = df[ColumnNames.TIME_STAMP].diff().fillna(0)
     df[ColumnNames.DX] = df[ColumnNames.X].diff().fillna(0)
     df[ColumnNames.DY] = df[ColumnNames.Y].diff().fillna(0)
@@ -140,3 +140,4 @@ def to_pywib_df(df: pd.DataFrame, colSessionId: str, colX: str, colY: str, colTi
         colSessionId: ColumnNames.SESSION_ID,
         colEventType: ColumnNames.EVENT_TYPE
     })
+
