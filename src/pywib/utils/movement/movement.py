@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from pywib.constants import ColumnNames
+from pywib.constants import ColumnNames, EventTypes
 from pywib.utils import validate_dataframe, compute_space_time_diff
 from pywib.utils.utils import deprecated
 from joblib import Parallel, delayed
@@ -185,7 +185,11 @@ def _path(trace: pd.DataFrame) -> pd.DataFrame:
 
     validate_dataframe(trace)
 
+    # Events out of the screen must also be removed.
+    trace = trace[(trace[ColumnNames.X] > -1) & (trace[ColumnNames.Y] > -1) ].copy()
+
     trace = compute_space_time_diff(trace)
+
     trace[ColumnNames.DISTANCE] = np.sqrt(trace[ColumnNames.DX] ** 2 + trace[ColumnNames.DY] ** 2)
 
     return trace

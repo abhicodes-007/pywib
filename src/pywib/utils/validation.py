@@ -47,3 +47,8 @@ def validate_duplicate_timestamps(df: pd.DataFrame):
     for session_id, group in df.groupby(ColumnNames.SESSION_ID):
         if group[ColumnNames.TIME_STAMP].duplicated().any():
             raise ValueError(f"Duplicate timestamps found in session {session_id}")
+
+def validate_traces(traces: dict[str, list[pd.DataFrame]]):
+    for _, session_traces in traces.items():
+        for i in range(len(session_traces)):
+            validate_dataframe(session_traces[i])
