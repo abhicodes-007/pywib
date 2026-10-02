@@ -50,13 +50,13 @@ def path(df: pd.DataFrame = None, traces: dict[str, list[pd.DataFrame]] = None, 
 
     return traces
 
-def total_distance(df: pd.DataFrame = None, traces: dict[str, list[pd.DataFrame]] = None, per_user:bool = True, per_traces:bool = False) -> float | dict[str, float]:
+def total_distance(df: pd.DataFrame = None, traces: dict[str, list[pd.DataFrame]] = None, per_user:bool = False, per_traces:bool = True) -> float | dict[str, float]:
     """
     Calculate the total distance of the sessions trajectory and return it as a float or as a dictonary of float values per session.
     
     This method can compute the total distance in three different ways:
-    - per_traces: If true, computes the path length of each trace and then adds all their values up. This renders a different result than a computation without traces. TODO
-    - per_user: Needs per_traces to be false. If set, the DataFrame is first segmented by session and then all movement points are taken into account for the path length.
+    - per_traces:True by default. Computes the path length of each trace and then adds all their values up. This renders a different result than a computation without traces. TODO
+    - per_user: If true, needs per_traces to be false. If set, the DataFrame is first segmented by session and then all movement points are taken into account for the path length.
     - without traces: The entire DataFrame is filtered only by movement metrics to compute the length of all points.
     """
     validate_any_not_none(df, traces)
