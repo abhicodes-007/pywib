@@ -5,6 +5,33 @@ All notable changes to PyWIB will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-10-17
+
+
+### Added
+
+- **Added** the total_distance metric to the core movement analysis functions, enabling calculation of the total traversed distance for sessions, with options for per-trace and per-user aggregation.
+
+- **Added** a new documentation page (`data_structure.rst`) describing the required and optional DataFrame columns for PyWIB, with detailed tables, usage notes, and examples.
+
+- **Added** notes to the mouse metrics documentation about browser event compatibility and filtering requirements for touchscreens.
+
+- **Added** `validate_traces` utility and ensured its use in relevant functions for improved input validation.
+
+### Updated
+
+- **Improved** the internal _path function to filter out events outside the screen, ensuring only valid movement data is considered in distance calculations.
+
+- **Updated** the documentation to clarify the difference between path and total distance metrics, including an illustrative table and usage notes.
+
+- **Improved** the documentation structure and navigation, adding a logo, reorganizing the table of contents, and clarifying class references for constants and column names.
+
+- **Improved** the `compute_space_time_diff` utility to use `validate_dataframe` for robust input checking and simplified the calculation logic.
+
+- **Extended** the return documentation for pauses_metrics to clarify the structure of returned metrics.
+
+- **Updated** the API for `to_pywib_df` to require the event type column, aligning with new documentation and validation standards.
+
 ## [2.0.0] - 2026-09-17
 
 ### Breaking Changes
