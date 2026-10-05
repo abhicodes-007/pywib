@@ -49,6 +49,7 @@ class EventTypes:
     """Custom event type for initializing tracking."""
     EVENT_TRACKING_END = 200
     """Custom event type for ending tracking."""
+    MOBILE_EVENTS_LIST = [EVENT_POINTER_CANCEL, EVENT_POINTER_DOWN, EVENT_POINTER_UP, EVENT_ON_POINTER_MOVE]
 
 class ComponentTypes:
     """ Component type constants for UI elements."""
