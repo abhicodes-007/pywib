@@ -8,9 +8,9 @@ import os
 from pywib.constants import EventTypes
 from pywib.constants import ColumnNames
 from pywib.utils.validation import validate_dataframe_keyboard
-from pywib.utils.visualization.trace_strategies import get_visualization_strategy
+from pywib.utils.visualization.trace_strategies import TraceVisualizationType, get_visualization_strategy
 
-def visualize_trace(df, stroke_indices, stroke_id, type: str = "simple", plot_name: str = None, plot: bool = True, save_path: str = None, **kwargs):
+def visualize_trace(df, stroke_indices, stroke_id, type: str = "simple", trace_strategy: TraceVisualizationType= None, plot_name: str = None, plot: bool = True, save_path: str = None, **kwargs):
     """
     Generates (and optionally saves) a plot visualizing the trace of a stroke.
 
@@ -18,7 +18,8 @@ def visualize_trace(df, stroke_indices, stroke_id, type: str = "simple", plot_na
         df (pd.DataFrame): DataFrame containing the stroke data with 'x', 'y and 'timeStamp' columns.
         stroke_indices (list): List of indices corresponding to the stroke in the DataFrame. Can be obtained using df.index
         stroke_id (str): Identifier for the stroke to be displayed in the title.
-        type (str): The type of visualization strategy to use. Options are: "simple", "info", "optimal_line", "full". 
+        type (str): The type of visualization strategy to use. Options are: "simple", "info", "optimal_line", "full" or "standardized". 
+        trace_strategy (TraceVisualizationType): Instead of stating the type, the visualization type can be passed as a string or as a newly implemented class.
         plot_name (str, optional): If provided, saves the plot to this file path.
         plot (bool): Whether to display the plot.
         **kwargs: Additional arguments to pass to the visualization strategy.
@@ -32,7 +33,10 @@ def visualize_trace(df, stroke_indices, stroke_id, type: str = "simple", plot_na
     
     # We pass kwargs to get_visualization_strategy which forwards them to the strategy constructor
     # For standardized, this means we can pass image_size and target_scale
-    strategy = get_visualization_strategy(type, **kwargs)
+    if(trace_strategy is None):
+        strategy = get_visualization_strategy(type, **kwargs)
+    else:
+        strategy = trace_strategy
     
     # We get the required figure size from the strategy
     figsize = strategy.get_figsize()
@@ -123,6 +127,11 @@ def video_from_trace(df, user_id, outfile: str, width=640, height=480, fps=30, c
     print(f"Video generated for user {user_id}: {outfile}")
 
 def keyboard_heatmap(df, session_id=None):
+    """
+    Generates a heatmap visualizing the frequency of key presses for a given session or for all sessions in the DataFrame.
+    The type of keyboard represented is a standard QWERTY layout (ANSI), and the heatmap shows the frequency of key presses for each key.
+    To change the keyboard layout, you can modify the 'layout' variable in the function.
+    """
 
     validate_dataframe_keyboard(df)
 
@@ -152,13 +161,14 @@ def keyboard_heatmap(df, session_id=None):
 
     # ---- FULL STANDARD QWERTY LAYOUT (ANSI) ----
     layout = [
-        ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="],
-        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]"],
-        ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'"],
-        ["z", "x", "c", "v", "b", "n", "m", ",", ".", "/"],
-        ["space"]
-    ]
-
+            ["escape", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"],
+            ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "backspace"],
+            ["tab", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\"],
+            ["capslock", "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", "enter"],
+            ["shift", "z", "x", "c", "v", "b", "n", "m", ",", ".", "/", "shift"],
+            ["control", "meta", "alt", "space", "altgraph", "arrowleft", "arrowup", "arrowdown", "arrowright"]
+        ]
+    
     # Determine max width for consistent matrix
     max_cols = max(len(row) for row in layout)
 

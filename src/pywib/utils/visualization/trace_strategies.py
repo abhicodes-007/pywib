@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from enum import Enum, auto
 from abc import ABC, abstractmethod
-from pywib.constants import ColumnNames
+from pywib.constants import ColumnNames, EventTypes
 
 class TraceVisualizationType(Enum):
     SIMPLE = "simple"
@@ -81,10 +81,12 @@ class StandardizedTraceVisualization(TraceVisualizationStrategy):
     """
     Standardized visualization strategy. 
     It expects extra parameters:
-    TODO
-    ...
-    1. Centroid translation to center.
-    2. Scaling to comparable lengths.
+    
+    Parameters:
+        image_size (int): The size of the image as an integer (squared). Defaults to 600.
+        target_scale (int): Scale for the cooridnates in the picture. Defaults tot 400.
+        color_features (list): List of strings taht represent the DataFrame columns to be encoded on each RGB channel. Expects a list with 3 strings present. If None, defaults color to blue.
+        size_feature (string): Column in the DataFrame to encode the size feature. If none, all points are the same size.
     """
     def __init__(self, image_size: int = 600, target_scale: int = 400, 
                  color_features: list = None, size_feature: str = None):
@@ -183,6 +185,24 @@ class StandardizedTraceVisualization(TraceVisualizationStrategy):
         
         # Clean up the plot (remove axes for a "clean" image)
         ax.axis('off')
+
+class MobileTraceVisualization(StandardizedTraceVisualization):
+    """
+    Standardized visualization for mobile devices traces.
+    Filters events to those of touch
+
+     It expects extra parameters:
+        
+        Parameters:
+            image_size (int): The size of the image as an integer (squared). Defaults to 600.
+            target_scale (int): Scale for the cooridnates in the picture. Defaults tot 400.
+            color_features (list): List of strings taht represent the DataFrame columns to be encoded on each RGB channel. Expects a list with 3 strings present. If None, defaults color to blue.
+            size_feature (string): Column in the DataFrame to encode the size feature. If none, all points are the same size.
+    """
+    def apply(self, ax: plt.Axes, stroke_data, stroke_id: str):
+        # Filter for events of mobile type
+        stroke_data = stroke_data[stroke_data[ColumnNames.EVENT_TYPE].isin(EventTypes.MOBILE_EVENTS_LIST)]
+        super.apply(self, ax, stroke_data, stroke_id)
 
 def get_visualization_strategy(viz_type, **kwargs) -> TraceVisualizationStrategy:
     """Factory function to get the appropriate visualization strategy based on the enum type or string."""
