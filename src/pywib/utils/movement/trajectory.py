@@ -169,16 +169,25 @@ def _auc_geometric_deviation(df):
     user_x, user_y = df[ColumnNames.X].values, df[ColumnNames.Y].values
     opt_x, opt_y = df_opt[ColumnNames.X].values, df_opt[ColumnNames.Y].values
 
-    # Compute perpendicular distances from optimal points to user segments
-    dists = []
-    for i in range(len(opt_x)):
-        px, py = opt_x[i], opt_y[i]
-        # Compute distance to all user segments and take minimum
-        seg_dists = [
-            point_to_segment_distance(px, py, user_x[j], user_y[j], user_x[j+1], user_y[j+1])
-            for j in range(len(user_x)-1)
-        ]
-        dists.append(min(seg_dists))
+    # Compute perpendicular distances from optimal points to user segments.
+    # Same projection math as point_to_segment_distance, broadcast over all
+    # (point, segment) pairs and evaluated in row chunks to bound memory.
+    ax, ay = user_x[:-1], user_y[:-1]
+    bx, by = user_x[1:], user_y[1:]
+    abx, aby = bx - ax, by - ay
+    denom = abx * abx + aby * aby
+    safe_denom = np.where(denom > 0, denom, 1.0)
+
+    dists = np.empty(len(opt_x), dtype=float)
+    for start in range(0, len(opt_x), 4096):
+        px = opt_x[start:start + 4096, None]
+        py = opt_y[start:start + 4096, None]
+        t = ((px - ax) * abx + (py - ay) * aby) / safe_denom
+        np.clip(t, 0.0, 1.0, out=t)
+        t[:, denom == 0] = 0.0
+        cx = ax + t * abx
+        cy = ay + t * aby
+        dists[start:start + 4096] = np.hypot(px - cx, py - cy).min(axis=1)
 
     # Integrate along optimal path
     # Compute optimal path length increments (arc-length)
