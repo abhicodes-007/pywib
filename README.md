@@ -1,12 +1,33 @@
 # PyWIB
 
+<p align="center">
+  <img src="docs/source/_static/images/logo-pywib.svg" alt="Interaction Lab logo" width="120">
+</p>
+
 Pywib (Python Web Interaction Behaviour) is a library desgined for analysing and obtaning metrics from users interaction with web pages.
 
 ## How to
+
+To install PyWIB, please use:
+
+```bash
+pip install pywib
+```
+
+A minimal example of how to use PyWIB is presented here. If you require deeper information about the librarys API please consult the [documentation](https://uniovi-hci.github.io/pywib/).
+
 ```python
-from pywib import velocity, velocity_metrics
-v = velocity(df_all_sessions, perTraces=True)
-v_metrics = velocity_metrics(None, v)
+from pywib import to_pywib_df, velocity, velocity_metrics, visualize_trace, ColumnNames
+
+# Considering an already loaded CSV into a pandas DataFrame
+
+df = to_pywib_df(df, "sessionIdCol", "xCoordinateCol", "yCoordinateCol", "timeStampCol", "eventTypeCol", "keyValueCol", "keyCodeCol").copy()
+
+v = velocity(df, per_traces=True)
+v_metrics = velocity_metrics(df=None, traces=v)
+
+userSession = df[df[ColumnNames.SESSION_ID] == "USER_A"].copy()
+visualize_trace(userSession, userSession.index, "USER_A", type="info", save_path="user_a_trace.png")
 ```
 
 ## Running the tests
@@ -33,7 +54,12 @@ G. D. Carvajal-Aza, A. Alvarez-Varela, J. De Andres, M. Gonzalez-Rodriguez, D. F
 
 
 ## Generating Documentation
+
+For bulding the PyWIB documentation in your local device, use:
+
 ```
 cd pywib/docs
 make html
 ```
+
+And then access `docs/build/html/index.html` to navigate.
