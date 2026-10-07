@@ -4,7 +4,17 @@
   <img src="docs/source/_static/images/logo-pywib.svg" alt="Interaction Lab logo" width="120">
 </p>
 
-Pywib (Python Web Interaction Behaviour) is a library desgined for analysing and obtaning metrics from users interaction with web pages.
+[![PyPi version](https://badgen.net/pypi/v/pywib/)](https://pypi.org/project/pywib)
+[![Latest release](https://badgen.net/github/release/uniovi-hci/pywib)](https://github.com/uniovi-hci/pywib/releases)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![made-with-sphinx-doc](https://img.shields.io/badge/Made%20with-Sphinx-1f425f.svg)](https://www.sphinx-doc.org/)
+
+PyWIB (Python Web Interaction Behaviour) is a Python library for analysing user
+interaction data recorded from web pages (mouse movement, clicks, keystrokes,
+scrolls) and computing HCI research metrics from it: velocity, acceleration,
+jerkiness, angle, trajectory deviations, AUC, click slip, typing speed, pauses,
+and more. It also provides trace visualisation and video generation of sessions.
 
 ## How to
 
@@ -13,6 +23,24 @@ To install PyWIB, please use:
 ```bash
 pip install pywib
 ```
+
+### Prepare your data
+
+PyWIB expects a strucuted input that complies with the following format:
+
+| Column | `ColumnNames` | Meaning |
+|---|---|---|
+| `sessionId` | `SESSION_ID` | Identifies one user session |
+| `eventType` | `EVENT_TYPE` | Integer code, see `EventTypes` |
+| `timeStamp` | `TIME_STAMP` | Event time <!-- VERIFY: unit (ms?) and whether absolute or relative --> |
+| `x`, `y` | `X`, `Y` | Pointer coordinates <!-- VERIFY: unit (CSS pixels?) and origin --> |
+| `elementId` | `ELEMENT_ID` | Target element |
+| `sceneId` | `SCENE_ID` | Page or scene identifier |
+| `keyValue`, `keyCode` | `KEY_VALUE`, `KEY_CODE` | Keyboard events |
+
+This data structure is further explained in the [documentation](https://uniovi-hci.github.io/pywib/data_structure.html).
+
+### Process user data
 
 A minimal example of how to use PyWIB is presented here. If you require deeper information about the librarys API please consult the [documentation](https://uniovi-hci.github.io/pywib/).
 

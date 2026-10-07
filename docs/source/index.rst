@@ -35,4 +35,4 @@ Contents
    patterns
    api/index
 
-This library has been developed by the `HCI research group <https://www.hci.uniovi.es/>`__ from the University of Oviedo and is maintained on `GitHub <https://github.com/HumanCommunicationInteraction/pywib>`_.
+This library has been developed by the `HCI research group <https://www.hci.uniovi.es/>`__ from the University of Oviedo and is maintained on `GitHub <https://github.com/uniovi-hci/pywib>`_.
