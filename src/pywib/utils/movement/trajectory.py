@@ -163,6 +163,10 @@ def auc_traces(traces: dict[str, list[pd.DataFrame]]) -> dict[str, list[tuple]]:
         auc_sessions[session_id] = auc_per_trace
     return auc_sessions
 
+# Element budget for a broadcast (row, segment) float64 temporary: one
+# temp peaks at ~32 MiB (2**22 elements) regardless of segment count.
+_AUC_CHUNK_MAX_ELEMS = 1 << 22
+
 def _auc_geometric_deviation(df):
     df_opt = compute_optimal_path(df)
     # Prepare arrays
@@ -179,15 +183,17 @@ def _auc_geometric_deviation(df):
     safe_denom = np.where(denom > 0, denom, 1.0)
 
     dists = np.empty(len(opt_x), dtype=float)
-    for start in range(0, len(opt_x), 4096):
-        px = opt_x[start:start + 4096, None]
-        py = opt_y[start:start + 4096, None]
+    # Bound each (row, segment) temporary by a fixed element budget so peak
+    # memory scales with the segment count: chunk rows = budget // segments.
+    chunk = max(1, _AUC_CHUNK_MAX_ELEMS // max(len(ax), 1))
+    for start in range(0, len(opt_x), chunk):
+        px = opt_x[start:start + chunk, None]
+        py = opt_y[start:start + chunk, None]
         t = ((px - ax) * abx + (py - ay) * aby) / safe_denom
         np.clip(t, 0.0, 1.0, out=t)
-        t[:, denom == 0] = 0.0
         cx = ax + t * abx
         cy = ay + t * aby
-        dists[start:start + 4096] = np.hypot(px - cx, py - cy).min(axis=1)
+        dists[start:start + chunk] = np.hypot(px - cx, py - cy).min(axis=1)
 
     # Integrate along optimal path
     # Compute optimal path length increments (arc-length)

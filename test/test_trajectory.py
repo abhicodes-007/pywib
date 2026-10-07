@@ -112,6 +112,20 @@ class TestTrajectory(unittest.TestCase):
                 self.assertGreaterEqual(tuple[0], 0)
                 self.assertGreaterEqual(tuple[1], 0)
 
+    def test_auc_geometric_tiny_chunk_matches_unchunked(self):
+        """Derived row chunks must not change the result, even at chunk size 1."""
+        from unittest import mock
+
+        from pywib.utils.movement import trajectory as traj_mod
+
+        df = build_trajectory_df([0, 100, 200, 300], [0, 50, 0, 50])
+        reference = traj_mod._auc_geometric_deviation(df.copy())
+        # Budget of 2 elements over 3 segments -> 1 row per chunk: every
+        # chunk boundary in the 100-point optimal path gets exercised.
+        with mock.patch.object(traj_mod, "_AUC_CHUNK_MAX_ELEMS", 2):
+            chunked = traj_mod._auc_geometric_deviation(df.copy())
+        self.assertAlmostEqual(reference, chunked, places=12)
+
     def test_x_flips_df(self):
         flips = x_flips(self.test_data_flips_single.copy())
         self.assertGreaterEqual(flips, 0)
