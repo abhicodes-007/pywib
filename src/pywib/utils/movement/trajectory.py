@@ -173,6 +173,9 @@ def _auc_geometric_deviation(df):
     user_x, user_y = df[ColumnNames.X].values, df[ColumnNames.Y].values
     opt_x, opt_y = df_opt[ColumnNames.X].values, df_opt[ColumnNames.Y].values
 
+    if len(user_x) < 2:
+        raise ValueError("Need at least 2 points")
+
     # Compute perpendicular distances from optimal points to user segments.
     # Same projection math as point_to_segment_distance, broadcast over all
     # (point, segment) pairs and evaluated in row chunks to bound memory.

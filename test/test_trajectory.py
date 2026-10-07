@@ -11,6 +11,7 @@ from utils import assert_between_zero_inf, process_csv, import_pyModule, build_t
 import_pyModule()
 from pywib import (ColumnNames, extract_traces_by_session, auc, x_flips, y_flips, deviations, angle, 
                    angular_velocity, angular_acceleration, path, total_distance, visualize_trace)
+from pywib.utils.movement import trajectory as traj_mod
 
 # Cambiar a True solo al probar en desarrollo
 DEBUG = True
@@ -326,6 +327,28 @@ class TestTrajectory(unittest.TestCase):
                 self.assertAlmostEqual(value, TestData.totalDistance_SESSIONA)
             else:
                 self.assertAlmostEqual(value, TestData.totalDistance_SESSIONB)
+
+    def test_auc_geometric_matches_legacy_loop(self):
+        rng = np.random.default_rng(0)
+        df = build_trajectory_df(rng.uniform(0, 500, 40), rng.uniform(0, 500, 40))
+
+        new = traj_mod._auc_geometric_deviation(df.copy())
+
+        # legacy: per-point loop over segments
+        df_opt = traj_mod.compute_optimal_path(df.copy())
+        ux, uy = df[ColumnNames.X].values, df[ColumnNames.Y].values
+        ox, oy = df_opt[ColumnNames.X].values, df_opt[ColumnNames.Y].values
+        dists = [min(traj_mod.point_to_segment_distance(px, py, ux[j], uy[j], ux[j+1], uy[j+1])
+                    for j in range(len(ux) - 1))
+                for px, py in zip(ox, oy)]
+        s = np.concatenate(([0], np.cumsum(np.hypot(np.diff(ox), np.diff(oy)))))
+        legacy = np.trapezoid(dists, s) / s[-1]
+
+        self.assertAlmostEqual(new, legacy, places=10)
+
+    def test_auc_geometric_repeated_points(self):
+        df = build_trajectory_df([0, 0, 100, 100], [0, 0, 50, 50])
+        self.assertTrue(np.isfinite(traj_mod._auc_geometric_deviation(df.copy())))
 
 if __name__ == '__main__':
     unittest.main()
