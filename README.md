@@ -24,6 +24,10 @@ To install PyWIB, please use:
 pip install pywib
 ```
 
+### Understand PyWIB
+
+To first understand how to use PyWIB, we suggest taking a look at the [Introduction section](https://uniovi-hci.github.io/pywib/introduction.html) of our documentation, which explains it's main features, limitations and provides a small tutorial on how to start working.
+
 ### Prepare your data
 
 PyWIB expects a strucuted input that complies with the following format:
